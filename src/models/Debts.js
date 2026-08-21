@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const expensesSchema = mongoose.Schema(
+const debtsMongoose = new mongoose.Schema(
   {
-    item: {
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -22,6 +22,5 @@ const expensesSchema = mongoose.Schema(
   }
 );
 
-const Expenses = mongoose.model("Expenses", expensesSchema);
-
-export default Expenses;
+const Debts = mongoose.model("Debts", debtsMongoose);
+export default Debts;

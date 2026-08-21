@@ -6,6 +6,11 @@ const salesSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
+    stock: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Assets",
+      required: true,
+    },
     weight: {
       type: String,
       required: true,
