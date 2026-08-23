@@ -528,6 +528,92 @@ export default function App() {
   };
 
   // =========================================================
+  // CALCULATOR
+  // =========================================================
+
+  const [calcOpen, setCalcOpen] = useState(false);
+  const [calcDisplay, setCalcDisplay] = useState("0");
+  const [calcPrev, setCalcPrev] = useState(null);
+  const [calcOperator, setCalcOperator] = useState(null);
+  const [calcWaitingForOperand, setCalcWaitingForOperand] = useState(false);
+
+  const calcInputDigit = (digit) => {
+    if (calcWaitingForOperand) {
+      setCalcDisplay(String(digit));
+      setCalcWaitingForOperand(false);
+    } else {
+      setCalcDisplay(calcDisplay === "0" ? String(digit) : calcDisplay + digit);
+    }
+  };
+
+  const calcInputDecimal = () => {
+    if (calcWaitingForOperand) {
+      setCalcDisplay("0.");
+      setCalcWaitingForOperand(false);
+      return;
+    }
+    if (!calcDisplay.includes(".")) {
+      setCalcDisplay(calcDisplay + ".");
+    }
+  };
+
+  const calcClear = () => {
+    setCalcDisplay("0");
+    setCalcPrev(null);
+    setCalcOperator(null);
+    setCalcWaitingForOperand(false);
+  };
+
+  const calcCompute = (a, b, op) => {
+    switch (op) {
+      case "+":
+        return a + b;
+      case "-":
+        return a - b;
+      case "×":
+        return a * b;
+      case "÷":
+        return b === 0 ? 0 : a / b;
+      default:
+        return b;
+    }
+  };
+
+  const calcPerformOperation = (nextOperator) => {
+    const inputValue = parseFloat(calcDisplay);
+
+    if (calcPrev === null) {
+      setCalcPrev(inputValue);
+    } else if (calcOperator) {
+      const result = calcCompute(calcPrev, inputValue, calcOperator);
+      setCalcDisplay(String(result));
+      setCalcPrev(result);
+    }
+
+    setCalcWaitingForOperand(true);
+    setCalcOperator(nextOperator);
+  };
+
+  const calcEquals = () => {
+    const inputValue = parseFloat(calcDisplay);
+
+    if (calcOperator && calcPrev !== null) {
+      const result = calcCompute(calcPrev, inputValue, calcOperator);
+      setCalcDisplay(String(result));
+      setCalcPrev(null);
+      setCalcOperator(null);
+      setCalcWaitingForOperand(true);
+    }
+  };
+
+  const CALC_BUTTONS = [
+    ["7", "8", "9", "÷"],
+    ["4", "5", "6", "×"],
+    ["1", "2", "3", "-"],
+    ["0", ".", "=", "+"],
+  ];
+
+  // =========================================================
   // GUARD — must come AFTER all hooks so hook order stays
   // identical on every render (Rules of Hooks).
   // =========================================================
@@ -547,14 +633,14 @@ export default function App() {
       ===================================================== */}
 
       <header className="fixed z-50 top-0 left-0 right-0 bg-[#1B2620]/90 border-b border-white/20 backdrop-blur-sm">
-        <div className="flex items-center justify-between lg:justify-center px-4 py-3 lg:gap-[100px]">
-          {/* HAMBURGER — visible below lg only */}
+        <div className="flex items-center justify-between min-[1400px]:justify-center px-4 py-3 min-[1400px]:gap-[100px]">
+          {/* HAMBURGER — visible below 1400px only */}
 
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open menu"
-            className="lg:hidden text-white/80 hover:text-[#C08B2C] p-1"
+            className="min-[1400px]:hidden text-white/80 hover:text-[#C08B2C] p-1"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -572,14 +658,14 @@ export default function App() {
             </svg>
           </button>
 
-          {/* Brand label shown on small screens next to hamburger */}
-          <span className="lg:hidden text-[#C08B2C] font-bold uppercase tracking-wide text-sm">
+          {/* Brand label shown below 1400px next to hamburger */}
+          <span className="min-[1400px]:hidden text-[#C08B2C] font-bold uppercase tracking-wide text-sm">
             Ghure Livestock
           </span>
 
-          {/* DESKTOP NAVIGATION — lg and up */}
+          {/* DESKTOP NAVIGATION — 1400px and up */}
 
-          <nav className="hidden lg:flex flex-wrap justify-center gap-2 lg:gap-10">
+          <nav className="hidden min-[1400px]:flex flex-wrap justify-center gap-2 min-[1400px]:gap-10">
             {NAV.map((item) => (
               <a
                 href={`#${item.key}`}
@@ -596,12 +682,12 @@ export default function App() {
             ))}
           </nav>
 
-          {/* MONTH SELECT — hidden on small screens, shown in sidebar instead */}
+          {/* MONTH SELECT — hidden below 1400px, shown in sidebar instead */}
 
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="hidden lg:block bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
+            className="hidden min-[1400px]:block bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
           >
             <option value="all">All Months</option>
 
@@ -612,12 +698,12 @@ export default function App() {
             ))}
           </select>
 
-          {/* STOCK SELECT — hidden on small screens, shown in sidebar instead */}
+          {/* STOCK SELECT — hidden below 1400px, shown in sidebar instead */}
 
           <select
             value={selectedStock}
             onChange={(e) => setSelectedStock(e.target.value)}
-            className="hidden lg:block bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
+            className="hidden min-[1400px]:block bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
           >
             <option value="all">All Stock</option>
 
@@ -628,11 +714,11 @@ export default function App() {
             ))}
           </select>
 
-          {/* LOGOUT — desktop only, mobile logout lives in sidebar */}
+          {/* LOGOUT — 1400px+ only, mobile/tablet logout lives in sidebar */}
 
           <button
             onClick={handleLogout}
-            className="hidden lg:block text-white/60 hover:text-[#C08B2C] font-semibold uppercase text-sm tracking-wide"
+            className="hidden min-[1400px]:block text-white/60 hover:text-[#C08B2C] font-semibold uppercase text-sm tracking-wide"
           >
             Logout
           </button>
@@ -640,20 +726,22 @@ export default function App() {
       </header>
 
       {/* =====================================================
-          MOBILE / TABLET SIDEBAR DRAWER
+          SIDEBAR DRAWER — below 1400px
       ===================================================== */}
 
       {/* Backdrop overlay */}
       <div
         onClick={() => setSidebarOpen(false)}
-        className={`fixed inset-0 z-[60] bg-black/60 transition-opacity duration-300 lg:hidden ${
-          sidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 z-[60] bg-black/60 transition-opacity duration-300 min-[1400px]:hidden ${
+          sidebarOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       />
 
       {/* Sliding panel */}
       <aside
-        className={`fixed top-0 left-0 z-[70] h-full w-[280px] max-w-[80%] bg-[#1B2620] border-r border-white/20 flex flex-col transition-transform duration-300 lg:hidden ${
+        className={`fixed top-0 left-0 z-[70] h-full w-[280px] max-w-[80%] bg-[#1B2620] border-r border-white/20 flex flex-col transition-transform duration-300 min-[1400px]:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -1540,6 +1628,128 @@ export default function App() {
           </section>
         )}
       </main>
+
+      {/* =====================================================
+          CALCULATOR WIDGET
+      ===================================================== */}
+
+      {calcOpen && (
+        <div className="fixed bottom-24 right-4 sm:right-6 z-[80] w-[260px] bg-[#1B2620] border border-white/20 rounded-md shadow-xl overflow-hidden">
+          <div className="flex items-center justify-between bg-black/40 px-3 py-2 border-b border-white/10">
+            <span className="text-[#C08B2C] text-xs font-semibold uppercase tracking-wide">
+              Calculator
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setCalcOpen(false);
+                calcClear();
+              }}
+              aria-label="Close calculator"
+              className="text-white/60 hover:text-[#C08B2C] p-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="px-3 py-3">
+            <div className="bg-black/60 text-white text-right text-xl font-semibold rounded-md px-3 py-3 mb-3 truncate">
+              {calcDisplay}
+            </div>
+
+            <div className="grid grid-cols-4 gap-2 mb-2">
+              <button
+                type="button"
+                onClick={calcClear}
+                className="col-span-4 bg-white/10 hover:bg-white/20 text-white/80 text-sm font-semibold rounded-md py-2"
+              >
+                Clear
+              </button>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2">
+              {CALC_BUTTONS.flat().map((btn) => {
+                const isOperator = ["÷", "×", "-", "+", "="].includes(btn);
+
+                return (
+                  <button
+                    key={btn}
+                    type="button"
+                    onClick={() => {
+                      if (btn === "=") calcEquals();
+                      else if (["÷", "×", "-", "+"].includes(btn))
+                        calcPerformOperation(btn);
+                      else if (btn === ".") calcInputDecimal();
+                      else calcInputDigit(btn);
+                    }}
+                    className={`rounded-md py-2 text-sm font-semibold transition-colors ${
+                      isOperator
+                        ? "bg-[#C08B2C] text-black hover:bg-[#C08B2C]/80"
+                        : "bg-white/10 text-white hover:bg-white/20"
+                    }`}
+                  >
+                    {btn}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating toggle button */}
+      <button
+        type="button"
+        onClick={() => setCalcOpen((prev) => !prev)}
+        aria-label={calcOpen ? "Close calculator" : "Open calculator"}
+        className="fixed bottom-4 right-4 sm:right-6 z-[80] bg-[#C08B2C] hover:bg-[#C08B2C]/90 text-black rounded-full h-14 w-14 flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+      >
+        {calcOpen ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <rect x="4" y="2" width="16" height="20" rx="2" strokeWidth={2} />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"
+            />
+          </svg>
+        )}
+      </button>
     </div>
   );
 }
