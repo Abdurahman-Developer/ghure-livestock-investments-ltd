@@ -68,6 +68,12 @@ export default function App() {
   const [active, setActive] = useState("overview");
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [selectedStock, setSelectedStock] = useState("all");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleNavClick = (key) => {
+    setActive(key);
+    setSidebarOpen(false);
+  };
 
   // =========================================================
   // SALES
@@ -541,10 +547,39 @@ export default function App() {
       ===================================================== */}
 
       <header className="fixed z-50 top-0 left-0 right-0 bg-[#1B2620]/90 border-b border-white/20 backdrop-blur-sm">
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-3 lg:gap-[100px] px-4 py-3">
-          {/* NAVIGATION */}
+        <div className="flex items-center justify-between lg:justify-center px-4 py-3 lg:gap-[100px]">
+          {/* HAMBURGER — visible below lg only */}
 
-          <nav className="flex flex-wrap justify-center gap-2 lg:gap-10">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+            className="lg:hidden text-white/80 hover:text-[#C08B2C] p-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-7 w-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+
+          {/* Brand label shown on small screens next to hamburger */}
+          <span className="lg:hidden text-[#C08B2C] font-bold uppercase tracking-wide text-sm">
+            Ghure Livestock
+          </span>
+
+          {/* DESKTOP NAVIGATION — lg and up */}
+
+          <nav className="hidden lg:flex flex-wrap justify-center gap-2 lg:gap-10">
             {NAV.map((item) => (
               <a
                 href={`#${item.key}`}
@@ -561,12 +596,12 @@ export default function App() {
             ))}
           </nav>
 
-          {/* MONTH SELECT */}
+          {/* MONTH SELECT — hidden on small screens, shown in sidebar instead */}
 
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
+            className="hidden lg:block bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
           >
             <option value="all">All Months</option>
 
@@ -577,12 +612,12 @@ export default function App() {
             ))}
           </select>
 
-          {/* STOCK SELECT */}
+          {/* STOCK SELECT — hidden on small screens, shown in sidebar instead */}
 
           <select
             value={selectedStock}
             onChange={(e) => setSelectedStock(e.target.value)}
-            className="bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
+            className="hidden lg:block bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold"
           >
             <option value="all">All Stock</option>
 
@@ -593,16 +628,134 @@ export default function App() {
             ))}
           </select>
 
-          {/* LOGOUT */}
+          {/* LOGOUT — desktop only, mobile logout lives in sidebar */}
 
           <button
             onClick={handleLogout}
-            className="text-white/60 hover:text-[#C08B2C] font-semibold uppercase text-sm tracking-wide"
+            className="hidden lg:block text-white/60 hover:text-[#C08B2C] font-semibold uppercase text-sm tracking-wide"
           >
             Logout
           </button>
         </div>
       </header>
+
+      {/* =====================================================
+          MOBILE / TABLET SIDEBAR DRAWER
+      ===================================================== */}
+
+      {/* Backdrop overlay */}
+      <div
+        onClick={() => setSidebarOpen(false)}
+        className={`fixed inset-0 z-[60] bg-black/60 transition-opacity duration-300 lg:hidden ${
+          sidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      />
+
+      {/* Sliding panel */}
+      <aside
+        className={`fixed top-0 left-0 z-[70] h-full w-[280px] max-w-[80%] bg-[#1B2620] border-r border-white/20 flex flex-col transition-transform duration-300 lg:hidden ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Sidebar header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/20">
+          <span className="text-[#C08B2C] font-bold uppercase tracking-wide text-sm">
+            Ghure Livestock
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
+            className="text-white/80 hover:text-[#C08B2C] p-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Sidebar nav links */}
+        <nav className="flex flex-col gap-1 px-3 py-4">
+          {NAV.map((item) => (
+            <a
+              href={`#${item.key}`}
+              key={item.key}
+              onClick={() => handleNavClick(item.key)}
+              className={`font-semibold uppercase tracking-wide duration-200 p-3 rounded-md ${
+                active === item.key
+                  ? "text-[#C08B2C] bg-gradient-to-r from-[#C08B2C]/20 to-[#C08B2C]/5 border-l-[5px] border-[#C08B2C]"
+                  : "text-white/60 hover:text-[#C08B2C] hover:bg-[#C08B2C]/10 border-l-[5px] border-transparent"
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        {/* Sidebar filters */}
+        <div className="flex flex-col gap-3 px-4 py-4 border-t border-white/20">
+          <label className="text-white/50 text-xs font-semibold uppercase tracking-wide">
+            Month
+          </label>
+
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold w-full"
+          >
+            <option value="all">All Months</option>
+
+            {monthOptions.map((key) => (
+              <option key={key} value={key}>
+                {formatMonthLabel(key)}
+              </option>
+            ))}
+          </select>
+
+          <label className="text-white/50 text-xs font-semibold uppercase tracking-wide mt-2">
+            Stock
+          </label>
+
+          <select
+            value={selectedStock}
+            onChange={(e) => setSelectedStock(e.target.value)}
+            className="bg-white text-black rounded-md p-2 border border-black outline-none text-sm font-semibold w-full"
+          >
+            <option value="all">All Stock</option>
+
+            {stockOptions.map((stockName) => (
+              <option key={stockName} value={stockName}>
+                {stockName}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Sidebar footer — logout */}
+        <div className="mt-auto px-4 py-4 border-t border-white/20">
+          <button
+            onClick={() => {
+              setSidebarOpen(false);
+              handleLogout();
+            }}
+            className="w-full text-left text-white/60 hover:text-[#C08B2C] font-semibold uppercase text-sm tracking-wide p-2"
+          >
+            Logout
+          </button>
+        </div>
+      </aside>
 
       {/* =====================================================
           MAIN
