@@ -12,7 +12,7 @@ export default function Login({ onLoginSuccess }) {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("http://localhost:3000/api/signin", {
+      const res = await fetch("/api/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
