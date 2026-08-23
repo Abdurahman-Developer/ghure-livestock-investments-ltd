@@ -1,0 +1,2 @@
+/*
+  Content-Security-Policy: default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self' https://ghure-livestock-investments-ltd.onrender.com

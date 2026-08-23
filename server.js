@@ -7,7 +7,6 @@ import expensesRoutes from "./src/routes/expensesRoutes.js";
 import assetsRoutes from "./src/routes/assetsRoutes.js";
 import debtsRoutes from "./src/routes/debtsRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
-import helmet from "helmet";
 dotenv.config();
 connectDB();
 
@@ -21,17 +20,6 @@ app.use(
   })
 );
 
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'none'"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
-      },
-    },
-  })
-);
 app.use("/api", salesRoutes);
 app.use("/api", expensesRoutes);
 app.use("/api", assetsRoutes);
