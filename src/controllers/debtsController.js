@@ -46,3 +46,4 @@ export const deleteDebt = async (req, res) => {
     res.status(500).json({ message: "error for deleting debt", err });
   }
 };
+
